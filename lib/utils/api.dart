@@ -1,16 +1,11 @@
 import 'package:country_directory/model/final_model.dart';
 import 'package:graphql/client.dart';
 
-import '../model/model.dart';
-
-
-
 const baseURL = "https://countries.trevorblades.com/graphql";
 
 final _httpLink = HttpLink(
   baseURL,
 );
-
 final GraphQLClient client = GraphQLClient(
   link: _httpLink,
   cache: GraphQLCache(),

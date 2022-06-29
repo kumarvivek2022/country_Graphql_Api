@@ -6,20 +6,12 @@ class CountryDetails extends StatefulWidget {
   const CountryDetails({Key? key, required this.ccode}) : super(key: key);
   final String ccode;
 
-
   @override
   State<CountryDetails> createState() => _CountryDetailsState();
 }
 
 class _CountryDetailsState extends State<CountryDetails> {
-  // List<Countryx> countries = [];
-  // Countryx? selectedCountry;
-  // Future<List<Countryx>>? future;
-
-
-
-
-Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
+  Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
   if (snapshot.connectionState == ConnectionState.waiting) {
     return const Padding(
       padding: EdgeInsets.only(top: 20),
@@ -37,7 +29,7 @@ Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
 
   return Card(
     elevation:10,
-    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0),
+    margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10.0),
     ),
@@ -76,16 +68,11 @@ Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
                     child: Center(
                       child: Text("    LANGUAGE : "+
                         lang.name.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
-
-                      ),
+                    ),
                     ),
                   );
-
               }),
         )
-
-
-
       ],
     ),
   );
