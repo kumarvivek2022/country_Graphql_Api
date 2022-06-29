@@ -1,3 +1,4 @@
+import 'package:country_directory/model/final_model.dart';
 import 'package:graphql/client.dart';
 
 import '../model/model.dart';
@@ -25,6 +26,10 @@ query getCountry($code:ID!){
     currency
     phone
     emoji
+    languages {
+      code,
+      name
+    }
 
   }
 }
@@ -36,11 +41,12 @@ query {
   countries{
     code
     name
+   
     }
   }
 ''';
 
-Future<List<Country>> getAllCountries() async {
+Future<List<Countryx>> getAllCountries() async {
   var result = await client.query(
     QueryOptions(
 
@@ -49,14 +55,14 @@ Future<List<Country>> getAllCountries() async {
   );
 
   var json = result.data!["countries"];
-  List<Country> countries = [];
+  List<Countryx> countries = [];
   for (var res in json) {
-    var country = Country.fromJson(res);
-    countries.add(country);
+    var countryx = Countryx.fromJson(res);
+    countries.add(countryx);
   }
   return countries;
 }
-Future<Country> getCountry(String code) async {
+Future<Countryx> getCountry(String code) async {
   var result = await client.query(
     QueryOptions(
       document: gql(_getCountry),
@@ -69,6 +75,6 @@ Future<Country> getCountry(String code) async {
   var json = result.data!["country"];
 
 
-  var country = Country.fromJson(json);
+  var country = Countryx.fromJson(json);
   return country;
 }

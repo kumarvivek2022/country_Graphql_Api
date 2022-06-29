@@ -1,9 +1,8 @@
 
 import 'package:country_directory/home_page/country_details.dart';
 import 'package:flutter/material.dart';
-
-import '../model/model.dart';
 import '../utils/api.dart';
+import '../model/final_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,9 +13,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  List<Country> countries = [];
-  Country? selectedCountry;
-  Future<List<Country>> future = getAllCountries();
+  List<Countryx> countries = [];
+  Countryx? selectedCountry;
+  Future<List<Countryx>> future = getAllCountries();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             const SizedBox(height: 50),
             Expanded(
-              child: FutureBuilder<List<Country>>(
+              child: FutureBuilder<List<Countryx>>(
                 future: future,
                 builder: (context, snapshot) {
                   return pickCountriesWidget(context, snapshot);
@@ -47,9 +46,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget pickCountriesWidget(BuildContext context,
-      AsyncSnapshot<List<Country>> snapshot) {
-    var countries = snapshot.data;
-
+      AsyncSnapshot<List<Countryx>> snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
       return ListView.builder(
 
@@ -73,14 +70,15 @@ class _HomePageState extends State<HomePage> {
           itemCount: snapshot.data!.length,
           shrinkWrap: true,
           itemBuilder: (BuildContext ctx, index){
-            Country project = snapshot.data![index];
+            Countryx project = snapshot.data![index];
+            snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
                 onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>  CountryDetails(ccode: project.code,)));
+                      MaterialPageRoute(builder: (context) =>  CountryDetails(ccode: project.code!,)));
                 },
                 child: Container(
                   height: 60,
@@ -126,15 +124,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  List<DropdownMenuItem<Country>> buildDropDownItem(List<Country> countries) {
-    return countries.map((country) =>
-        DropdownMenuItem<Country>(
-          child: Text(country.name),
-
-          value: country,
-        ))
-        .toList();
-  }
+  // List<DropdownMenuItem<Country>> buildDropDownItem(List<Country> countries) {
+  //   return countries.map((country) =>
+  //       DropdownMenuItem<Country>(
+  //         child: Text(country.name),
+  //
+  //         value: country,
+  //       ))
+  //       .toList();
+  // }
 
   // Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
   //   if (snapshot.connectionState == ConnectionState.waiting) {

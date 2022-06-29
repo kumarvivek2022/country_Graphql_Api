@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../model/model.dart';
 import '../utils/api.dart';
+import '../model/final_model.dart';
 class CountryDetails extends StatefulWidget {
   const CountryDetails({Key? key, required this.ccode}) : super(key: key);
   final String ccode;
+
 
   @override
   State<CountryDetails> createState() => _CountryDetailsState();
 }
 
 class _CountryDetailsState extends State<CountryDetails> {
-  List<Country> countries = [];
-  Country? selectedCountry;
-  Future<List<Country>>? future;
+  // List<Countryx> countries = [];
+  // Countryx? selectedCountry;
+  // Future<List<Countryx>>? future;
 
 
 
@@ -32,30 +33,61 @@ Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
       child: Text("Unable to fetch country data"),
     );
   }
-  Country country = snapshot.data;
+  Countryx country = snapshot.data;
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      const SizedBox(height: 10),
-      Center(child: Text(country.emoji.toString(), style: const TextStyle(fontSize: 100),)),
-      const SizedBox(height: 20,),
-      Text(country.name.toUpperCase(), textAlign:TextAlign.center,style: const TextStyle(
-        fontSize: 30, fontWeight: FontWeight.w500, letterSpacing: 1,height: 1.5,
-        color: Colors.indigo
-      ),),
-      SizedBox(height: 20,),
-      Text(country.native.toString(),style: TextStyle(fontWeight: FontWeight.bold,color: Colors.indigo,fontSize: 30),),
-      SizedBox(height: 20,),
-      Text(country.currency.toString(),style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo ),),
-      SizedBox(height: 20,),
-      Text(country.capital.toString(),style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
-      SizedBox(height: 20,),
-      Text(country.code.toString(),style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
+  return Card(
+    elevation:10,
+    margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    color: Colors.lightBlueAccent,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 10),
+        Center(child: Text(country.emoji.toString(), style: const TextStyle(fontSize: 100),)),
+        const SizedBox(height: 20,),
+        Text("NAME : "+country.name!.toUpperCase(), textAlign:TextAlign.center,style: const TextStyle(
+          fontSize: 30, fontWeight: FontWeight.w500, letterSpacing: 1,height: 1.5,
+          color: Colors.indigo
+        ),),
+        const SizedBox(height: 20,),
+        Text("NATIVE : "+country.native.toString(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.indigo,fontSize: 30),),
+        const SizedBox(height: 20,),
+        Text("CURRENCY : "+country.currency.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo ),),
+        const SizedBox(height: 20,),
+        Text("CAPITAL : "+country.capital.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
+        const SizedBox(height: 20,),
+        Text("CODE : "+country.code.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
+        const SizedBox(height: 20,),
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: 80,
+          child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: country.languages!.length,
+              itemBuilder: (BuildContext ctx2, index2){
+                Languages lang = country.languages![index2];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Center(
+                      child: Text("    LANGUAGE : "+
+                        lang.name.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
+
+                      ),
+                    ),
+                  );
+
+              }),
+        )
 
 
-      
-    ],
+
+      ],
+    ),
   );
 }
 
@@ -73,7 +105,7 @@ Widget countryDetailsWidget(BuildContext context, AsyncSnapshot snapshot) {
           children: [
             const SizedBox(height: 50),
             Expanded(
-              child: FutureBuilder<Country>(
+              child: FutureBuilder<Countryx>(
                 future: getCountry(widget.ccode),
                 builder: (context, snapshot) {
                   return countryDetailsWidget(context, snapshot);
