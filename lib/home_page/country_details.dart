@@ -25,7 +25,7 @@ class _CountryDetailsState extends State<CountryDetails> {
       child: Text("Unable to fetch country data"),
     );
   }
-  Countryx country = snapshot.data;
+  Country country = snapshot.data;
 
   return Card(
     elevation:10,
@@ -44,18 +44,20 @@ class _CountryDetailsState extends State<CountryDetails> {
           fontSize: 30, fontWeight: FontWeight.w500, letterSpacing: 1,height: 1.5,
           color: Colors.indigo
         ),),
-        const SizedBox(height: 20,),
-        Text("NATIVE : "+country.native.toString(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.indigo,fontSize: 30),),
-        const SizedBox(height: 20,),
-        Text("CURRENCY : "+country.currency.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo ),),
-        const SizedBox(height: 20,),
-        Text("CAPITAL : "+country.capital.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
-        const SizedBox(height: 20,),
-        Text("CODE : "+country.code.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
-        const SizedBox(height: 20,),
+        const SizedBox(height: 10,),
+        Text("NATIVE : "+country.native.toString(),style: const TextStyle(fontWeight: FontWeight.w600,color: Colors.indigo,fontSize: 30),),
+        const SizedBox(height: 10,),
+        Text("CURRENCY : "+country.currency.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo ),),
+        const SizedBox(height: 10,),
+        Text("CAPITAL : "+country.capital.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
+        const SizedBox(height: 10,),
+        Text("CODE : "+country.code.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
+        const SizedBox(height: 10,),
+        Text("PHONE : "+country.phone.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
         SizedBox(
           width: MediaQuery.of(context).size.width,
           height: 80,
+
           child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: country.languages!.length,
@@ -66,8 +68,11 @@ class _CountryDetailsState extends State<CountryDetails> {
                   child: Padding(
                     padding: const EdgeInsets.all(6.0),
                     child: Center(
-                      child: Text("    LANGUAGE : "+
-                        lang.name.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Colors.indigo),),
+                      child: Card(
+                        color: Colors.yellow.shade700,
+                        child: Text("    LANGUAGE : "+
+                          lang.name.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
+                      ),
                     ),
                     ),
                   );
@@ -92,7 +97,7 @@ class _CountryDetailsState extends State<CountryDetails> {
           children: [
             const SizedBox(height: 50),
             Expanded(
-              child: FutureBuilder<Countryx>(
+              child: FutureBuilder<Country>(
                 future: getCountry(widget.ccode),
                 builder: (context, snapshot) {
                   return countryDetailsWidget(context, snapshot);

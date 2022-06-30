@@ -41,7 +41,7 @@ query {
   }
 ''';
 
-Future<List<Countryx>> getAllCountries() async {
+Future<List<Country>> getAllCountries() async {
   var result = await client.query(
     QueryOptions(
 
@@ -50,14 +50,14 @@ Future<List<Countryx>> getAllCountries() async {
   );
 
   var json = result.data!["countries"];
-  List<Countryx> countries = [];
+  List<Country> countries = [];
   for (var res in json) {
-    var countryx = Countryx.fromJson(res);
-    countries.add(countryx);
+    var country = Country.fromJson(res);
+    countries.add(country);
   }
   return countries;
 }
-Future<Countryx> getCountry(String code) async {
+Future<Country> getCountry(String code) async {
   var result = await client.query(
     QueryOptions(
       document: gql(_getCountry),
@@ -70,6 +70,6 @@ Future<Countryx> getCountry(String code) async {
   var json = result.data!["country"];
 
 
-  var country = Countryx.fromJson(json);
+  var country = Country.fromJson(json);
   return country;
 }

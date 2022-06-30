@@ -1,4 +1,4 @@
-class Countryx {
+class Country {
   String? name;
   String? capital;
   String? code;
@@ -8,7 +8,7 @@ class Countryx {
   String? emoji;
   List<Languages>? languages;
 
-  Countryx(
+  Country(
       {this.name,
         this.capital,
         this.code,
@@ -18,7 +18,7 @@ class Countryx {
         this.emoji,
         this.languages});
 
-  Countryx.fromJson(Map<String, dynamic> json) {
+  Country.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     capital = json['capital'];
     code = json['code'];
