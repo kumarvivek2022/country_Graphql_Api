@@ -5,7 +5,6 @@ import '../model/final_model.dart';
 class CountryDetails extends StatefulWidget {
   const CountryDetails({Key? key, required this.ccode}) : super(key: key);
   final String ccode;
-
   @override
   State<CountryDetails> createState() => _CountryDetailsState();
 }

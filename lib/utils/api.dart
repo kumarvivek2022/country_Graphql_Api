@@ -34,10 +34,21 @@ query getCountry($code:ID!){
 const _getAllCountries = r'''
 query {
   countries{
-    code
-    name
-   
+    code,
+    name,
+    languages {
+      code,
+      name
     }
+    }
+  }
+''';
+const getAllLanguage = r'''
+query {
+ languages {
+    code
+    name 
+   }
   }
 ''';
 
@@ -73,3 +84,22 @@ Future<Country> getCountry(String code) async {
   var country = Country.fromJson(json);
   return country;
 }
+
+Future<List<Languages>> getAllLanguages() async {
+  var result = await client.query(
+    QueryOptions(
+      document: gql(getAllLanguage),
+    ),
+  );
+  if (result.hasException) {
+    throw result.exception!;
+  }
+  var json = result.data!["languages"];
+  List<Languages> lang = [];
+  for (var res in json) {
+    var languages = Languages.fromJson(res);
+    lang.add(languages);
+  }
+  return lang;
+}
+
