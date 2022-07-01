@@ -39,13 +39,13 @@ class _HomePageState extends State<HomePage> {
         searchedItemsIndexPosition.clear(); //to clear the searched items index position
         for(var i=0; i<searchedItems.length; i++){
           final index = dummyList.indexWhere((element) => // to check the index of element
-          element.name == searchedItems[i].name); // to match the element index with searched item index
+          element.code == searchedItems[i].code); // to match the element index with searched item index
           searchedItemsIndexPosition.add(index); //to add the searched item index on searched item index position list
           debugPrint(index.toString());
         }
         if(searchedItemsIndexPosition.isEmpty){ // to check if the list is empty
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("NO COUNTRY WITH THIS NAME"),
+            content: Text("No country found with this country code"),
           ));
         }else{
 
@@ -63,9 +63,6 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
-
-
   Future<void> filterItem(String query) async {
     searchedItemsIndexPosition.clear();
     List dummySearchList = [];
@@ -121,6 +118,7 @@ class _HomePageState extends State<HomePage> {
                 languageList!.length,
                     (index) {
                   Languages lang = languageList[index];
+                  languageList.sort((a, b) => a.name!.compareTo(b.name!));
                   return Padding(
                     padding: const EdgeInsets.all(10),
                     child: TextButton(
@@ -153,60 +151,7 @@ class _HomePageState extends State<HomePage> {
           const SnackBar(content: Text("Data Loading")));
     }
   }
-
   Future<List<Languages>> futureLang = getAllLanguages();
-
-
-  Future<void> filter(String query) async {
-    searchedItemsIndexPosition.clear();
-    List dummySearchList = [];
-    dummySearchList.addAll(countries);
-    if(query.isNotEmpty) {
-      List dummyListData = [];
-      for (var item in dummySearchList) {
-        debugPrint(item.languages.toString());
-        for(var i=0; i<item.languages.length; i++) {
-          Languages lang = item.languages![i];
-          if(lang.name.toString().toLowerCase()==query.toLowerCase()) {
-            setState(() {
-              dummyListData.add(item);
-            });
-          }
-        }
-      }
-      setState(() {
-        searchedItems.clear();
-        searchedItems.addAll(dummyListData);
-        searchedItemsIndexPosition.clear();
-        for(var i=0; i<searchedItems.length; i++){
-          final index = dummySearchList.indexWhere((element) =>
-          element.code == searchedItems[i].code);
-          searchedItemsIndexPosition.add(index);
-        }
-      });
-      searchedItems.clear();
-      for(var i=0; i<searchedItemsIndexPosition.length; i++){
-        searchedItems.add(countries[int.parse(searchedItemsIndexPosition[i].toString())]);
-      }
-      return;
-    } else {
-      setState(() {
-        searchedItems.clear();
-      });
-    }
-  }
-
-  //dropdown element for filter
-  List<DropdownMenuItem<String>> buildDropDownItem(List<Languages> languages) {
-    return languages
-        .map((languages) => DropdownMenuItem<String>(
-         child: Text(languages.name!),
-      value: languages.name,
-    ))
-        .toList();
-  }
-
-
   Future<List<Country>> future = getAllCountries();
   @override
   Widget build(BuildContext context) {
@@ -216,7 +161,6 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.pink,
         title: const Text("Country Directory"),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -227,7 +171,6 @@ class _HomePageState extends State<HomePage> {
                  Expanded(
                    child: TextField(
                      decoration: const InputDecoration(
-
                        border: OutlineInputBorder(),
                        hintText: 'Enter country name',
                      ),
@@ -235,7 +178,6 @@ class _HomePageState extends State<HomePage> {
                        searchResults(value); },
                    ),
                  ),
-
                  FutureBuilder<List<Languages>>(
                    future: futureLang,
                    builder: (context, snapshot) {
@@ -315,7 +257,6 @@ class _HomePageState extends State<HomePage> {
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFFFFFF),
                           child: Text(project.code.toString()),
-
                         ),
                         const SizedBox(width: 50,),
                         Column(
@@ -365,14 +306,12 @@ class _HomePageState extends State<HomePage> {
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFFFFFF),
                           child: Text(project.code.toString()),
-
                         ),
                         const SizedBox(width: 50,),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(project.name.toString(),style: const TextStyle(fontSize: 10,fontWeight: FontWeight.bold),),
-                            // Text(project.code.toString(),style: const TextStyle(fontStyle: FontStyle.italic),),
                           ],
                         ),
                       ],
@@ -382,7 +321,6 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           });
-
     }
     return const Center(
       child: CircularProgressIndicator(),
