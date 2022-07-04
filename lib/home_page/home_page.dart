@@ -1,7 +1,9 @@
 
 import 'package:country_directory/home_page/country_details.dart';
+import 'package:country_directory/provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/api.dart';
 import '../model/final_model.dart';
 
@@ -20,49 +22,53 @@ class _HomePageState extends State<HomePage> {
 
   List searchedItems = []; //to store searched list items
   List searchedItemsIndexPosition = []; //to store searched list items index
-  Future<void> searchResults(String query) async {
-    searchedItemsIndexPosition.clear(); //to clear searched list items index
+
+  Future<void> searchResults(String query, List savedCountry,
+      List searchedItemsIndexPosition, List searchedItems) async {
+    print(savedCountry.toString());
+    //to clear searched list items index
+    searchedItems.clear();
+    searchedItemsIndexPosition.clear();
     List dummyList = []; // initialise a dummy list
-    dummyList.addAll(countries); // to store all countries data on dummy list
-    if(query.isNotEmpty){
+    dummyList.addAll(savedCountry); // to store all countries data on dummy list
+    if (query.isNotEmpty) {
       List dummyListData = []; // to store list searched data for runtime if query is not empty
       for (var searchedCountry in dummyList) {
-        if(searchedCountry.code.toString().toLowerCase().contains(query.toLowerCase())) { // to search on the basis of name of the country
-          setState(() {
-            dummyListData.add(searchedCountry); // to store searched data on the dummy list data
-          });
+        if (searchedCountry.code.toString().toLowerCase() ==
+            query.toLowerCase()) {
+          dummyListData.add(searchedCountry); // to store searched data on the dummy list data
         }
       }
-      setState(() {
-        searchedItems.clear(); // to clear the searched data
-        searchedItems.addAll(dummyListData); // to add the dummy list data on searched items
-        searchedItemsIndexPosition.clear(); //to clear the searched items index position
-        for(var i=0; i<searchedItems.length; i++){
-          final index = dummyList.indexWhere((element) => // to check the index of element
-          element.code == searchedItems[i].code); // to match the element index with searched item index
-          searchedItemsIndexPosition.add(index); //to add the searched item index on searched item index position list
-          debugPrint(index.toString());
-        }
-        if(searchedItemsIndexPosition.isEmpty){ // to check if the list is empty
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("No country found with this country code"),
-          ));
-        }else{
-
-        }
-      });
-      searchedItems.clear(); // to clear the searched item list
-      for(var i=0; i<searchedItemsIndexPosition.length; i++){
-        searchedItems.add(countries[int.parse(searchedItemsIndexPosition[i].toString())]);
+      print("sitabra");
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems(dummyListData);
+      Provider.of<CountryProvider>(context, listen: false).getIndexPosition([]); //to clear the searched items index position
+      for (var i = 0; i < searchedItems.length; i++) {
+        final index = dummyList.indexWhere(
+                (element) => // to check the index of element
+            element.code == searchedItems[i].code); // to match the element index with searched item index
+        Provider.of<CountryProvider>(context, listen: false).getIndexPosition([index]);
       }
-      debugPrint(searchedItems.toString());
-      return;
-    }  else {
-      setState(() {
-        searchedItems.clear();
-      });
+      if (searchedItemsIndexPosition.isEmpty) {
+        // to check if the list is empty
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("No country with this country code"),
+        ));
+      } else {
+        const Text("Country found with this code");
+      } // to clear the searched item list
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
+      for (var i = 0; i < searchedItemsIndexPosition.length; i++) {
+        Provider.of<CountryProvider>(context, listen: false).getSelectedItems([
+          savedCountry[int.parse(searchedItemsIndexPosition[i].toString())]
+        ]);
+      }
+    } else {
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
     }
   }
+
+
   Future<void> filterItem(String query) async {
     searchedItemsIndexPosition.clear();
     List dummySearchList = [];
@@ -105,7 +111,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _modalBottomSheet(AsyncSnapshot<List<Languages>> snapshot) {
+  void _modalBottomSheet(AsyncSnapshot<List<Languages>> snapshot, dynamic savedCountries, String? selectedLanguage) {
     var languageList = snapshot.data;
     if (snapshot.connectionState == ConnectionState.done) {
       showModalBottomSheet(context: context, builder: (BuildContext context) {
@@ -125,12 +131,10 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () {
                         if(selectedLanguage.toString()!=lang.name.toString()) {
                           filterItem(lang.name.toString());
-                          setState(() {
-                            selectedLanguage = lang.name.toString();
-                          });
+                          Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(lang.name.toString());
                         }else{
+                          Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(null);
                           setState(() {
-                            selectedLanguage = null;
                             searchedItemsIndexPosition.clear();
                             searchedItems.clear();
                           });
@@ -155,6 +159,11 @@ class _HomePageState extends State<HomePage> {
   Future<List<Country>> future = getAllCountries();
   @override
   Widget build(BuildContext context) {
+    final storedCountry = Provider.of<CountryProvider>(context).allCountryList;
+    final selectedLanguage= Provider.of<CountryProvider>(context).selectedLanguage;
+    final searchedItems= Provider.of<CountryProvider>(context).searchedItems;
+    final searchedItemsIndexPosition= Provider.of<CountryProvider>(context).searchedItemsIndexPosition;
+    debugPrint(storedCountry.toString());
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -175,7 +184,8 @@ class _HomePageState extends State<HomePage> {
                        hintText: 'Enter country name',
                      ),
                      onChanged: (value) {
-                       searchResults(value); },
+                       searchResults(value, storedCountry, searchedItemsIndexPosition,
+                           searchedItems); },
                    ),
                  ),
                  FutureBuilder<List<Languages>>(
@@ -185,7 +195,7 @@ class _HomePageState extends State<HomePage> {
                        children: [
                          IconButton(
                              onPressed: (){
-                               _modalBottomSheet(snapshot);
+                               _modalBottomSheet(snapshot, storedCountry, selectedLanguage);
                              },
                              icon: const Icon(Icons.sort)),
                          if(selectedLanguage!=null)
@@ -209,7 +219,7 @@ class _HomePageState extends State<HomePage> {
               child: FutureBuilder<List<Country>>(
                 future: future,
                 builder: (context, snapshot) {
-                  return pickCountriesWidget(context, snapshot);
+                  return pickCountriesWidget(context, snapshot, searchedItems);
                 },
               ),
             ),
@@ -220,8 +230,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
   Widget pickCountriesWidget(BuildContext context,
-      AsyncSnapshot<List<Country>> snapshot) {
+      AsyncSnapshot<List<Country>> snapshot, List searchedItems) {
     countries = snapshot.data;
+    Provider.of<CountryProvider>(context, listen: false).addCountries(snapshot);
     if (snapshot.connectionState == ConnectionState.done) {
       return searchedItems.isEmpty?ListView.builder(
           itemCount: snapshot.data!.length,
@@ -253,7 +264,7 @@ class _HomePageState extends State<HomePage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
-                       children: [
+                      children: [
                         CircleAvatar(
                           backgroundColor: const Color(0xFFFFFFFF),
                           child: Text(project.code.toString()),
@@ -327,6 +338,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 
 
 
