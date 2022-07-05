@@ -1,4 +1,3 @@
-
 import 'package:country_directory/home_page/country_details.dart';
 import 'package:country_directory/provider/provider.dart';
 import 'package:flutter/foundation.dart';
@@ -19,17 +18,11 @@ class _HomePageState extends State<HomePage> {
   String? selectedLanguage;
   dynamic countries;
   dynamic allLanguage;
-
-  List searchedItems = []; //to store searched list items
-  List searchedItemsIndexPosition = []; //to store searched list items index
-
   Future<void> searchResults(String query, List savedCountry,
       List searchedItemsIndexPosition, List searchedItems) async {
-    print(savedCountry.toString());
-    //to clear searched list items index
-    searchedItems.clear();
+    searchedItems.clear(); //to clear searched list items index
     searchedItemsIndexPosition.clear();
-    List dummyList = []; // initialise a dummy list
+    List dummyList = [];  // initialise a dummy list
     dummyList.addAll(savedCountry); // to store all countries data on dummy list
     if (query.isNotEmpty) {
       List dummyListData = []; // to store list searched data for runtime if query is not empty
@@ -39,10 +32,9 @@ class _HomePageState extends State<HomePage> {
           dummyListData.add(searchedCountry); // to store searched data on the dummy list data
         }
       }
-      print("sitabra");
       Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
       Provider.of<CountryProvider>(context, listen: false).getSelectedItems(dummyListData);
-      Provider.of<CountryProvider>(context, listen: false).getIndexPosition([]); //to clear the searched items index position
+      Provider.of<CountryProvider>(context, listen: false).getIndexPosition([]);
       for (var i = 0; i < searchedItems.length; i++) {
         final index = dummyList.indexWhere(
                 (element) => // to check the index of element
@@ -69,10 +61,16 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  Future<void> filterItem(String query) async {
+  Future<void> filterItem(String query, List searchedItemsIndexPosition,
+      dynamic savedCountry,List searchedItems) async {
+    print("Q: "+query.toString());
+    print("searchedItemsIndexPosition: "+searchedItemsIndexPosition.toString());
+    print("savedcountry: "+savedCountry.toString());
+
+    searchedItems.clear();
     searchedItemsIndexPosition.clear();
     List dummySearchList = [];
-    dummySearchList.addAll(countries);
+    dummySearchList.addAll(savedCountry);
     if (kDebugMode) {
       print('printing data - '+dummySearchList.toString());
     }
@@ -83,35 +81,42 @@ class _HomePageState extends State<HomePage> {
         for(var i=0; i<item.languages.length; i++) {
           Languages lang = item.languages![i];
           if(lang.name.toString().toLowerCase()==query.toLowerCase()) {
-            setState(() {
+            // setState(() {
               dummyListData.add(item);
-            });
+            // });
           }
         }
       }
-      setState(() {
-        searchedItems.clear();
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems(dummyListData);
+      Provider.of<CountryProvider>(context, listen: false).getIndexPosition([]);
+
+      searchedItems.clear();
         searchedItems.addAll(dummyListData);
         searchedItemsIndexPosition.clear();
         for(var i=0; i<searchedItems.length; i++){
           final index = dummySearchList.indexWhere((element) =>
           element.code == searchedItems[i].code);
-          searchedItemsIndexPosition.add(index);
+         // searchedItemsIndexPosition.add(index);
+          Provider.of<CountryProvider>(context, listen: false).getIndexPosition([index]);
         }
-      });
-      searchedItems.clear();
+
+      // searchedItems.clear();
       for(var i=0; i<searchedItemsIndexPosition.length; i++){
+        Provider.of<CountryProvider>(context, listen: false).getSelectedItems;
         searchedItems.add(countries[int.parse(searchedItemsIndexPosition[i].toString())]);
       }
       return;
     } else {
-      setState(() {
-        searchedItems.clear();
-      });
+      // setState(() {
+      //   searchedItems.clear();
+      // });
+      Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
     }
   }
 
-  void _modalBottomSheet(AsyncSnapshot<List<Languages>> snapshot, dynamic savedCountries, String? selectedLanguage) {
+  void _modalBottomSheet(AsyncSnapshot<List<Languages>> snapshot,
+      dynamic savedCountries, String? selectedLanguage, List searchedItemsIndexPosition, List searchedItems) {
     var languageList = snapshot.data;
     if (snapshot.connectionState == ConnectionState.done) {
       showModalBottomSheet(context: context, builder: (BuildContext context) {
@@ -130,14 +135,14 @@ class _HomePageState extends State<HomePage> {
                     child: TextButton(
                       onPressed: () {
                         if(selectedLanguage.toString()!=lang.name.toString()) {
-                          filterItem(lang.name.toString());
+                           filterItem(lang.name.toString(),searchedItemsIndexPosition,savedCountries,searchedItems );
                           Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(lang.name.toString());
                         }else{
                           Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(null);
-                          setState(() {
-                            searchedItemsIndexPosition.clear();
-                            searchedItems.clear();
-                          });
+                          // setState(() {
+                          //   searchedItemsIndexPosition.clear();
+                          //   searchedItems.clear();
+                          // });
                         }
                         Navigator.pop(context);
                       },
@@ -195,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                        children: [
                          IconButton(
                              onPressed: (){
-                               _modalBottomSheet(snapshot, storedCountry, selectedLanguage);
+                               _modalBottomSheet(snapshot, storedCountry, selectedLanguage,searchedItemsIndexPosition,searchedItems);
                              },
                              icon: const Icon(Icons.sort)),
                          if(selectedLanguage!=null)
@@ -231,13 +236,12 @@ class _HomePageState extends State<HomePage> {
   }
   Widget pickCountriesWidget(BuildContext context,
       AsyncSnapshot<List<Country>> snapshot, List searchedItems) {
-    countries = snapshot.data;
-    Provider.of<CountryProvider>(context, listen: false).addCountries(snapshot);
     if (snapshot.connectionState == ConnectionState.done) {
-      return searchedItems.isEmpty?ListView.builder(
+      Provider.of<CountryProvider>(context, listen: false).addCountries(snapshot);
+      return searchedItems.isEmpty ? ListView.builder(
           itemCount: snapshot.data!.length,
           shrinkWrap: true,
-          itemBuilder: (BuildContext ctx, index){
+          itemBuilder: (BuildContext ctx, index) {
             Country project = snapshot.data![index];
             snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
             return Padding(
@@ -246,7 +250,8 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>  CountryDetails(ccode: project.code!,)));
+                      MaterialPageRoute(builder: (context) =>
+                          CountryDetails(ccode: project.code!,)));
                 },
                 child: Container(
                   height: 60,
@@ -255,11 +260,14 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.greenAccent,
                       border: Border.all(
                           color: Colors.white54, // Set border color
-                          width: 2.0),   // Set border width
+                          width: 2.0), // Set border width
                       borderRadius: const BorderRadius.all(
                           Radius.circular(8.0)), // Set rounded corner radius
                       boxShadow: const [
-                        BoxShadow(blurRadius: 10,color: Colors.black,offset: Offset(1,3))] // Make rounded corner of border
+                        BoxShadow(blurRadius: 10,
+                            color: Colors.black,
+                            offset: Offset(1, 3))
+                      ] // Make rounded corner of border
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -273,7 +281,9 @@ class _HomePageState extends State<HomePage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(project.name.toString(),style: const TextStyle(fontSize: 10,fontWeight: FontWeight.bold),),
+                            Text(project.name.toString(),
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),),
                             // Text(project.code.toString(),style: const TextStyle(fontStyle: FontStyle.italic),),
                           ],
                         ),
@@ -283,10 +293,10 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             );
-          }):ListView.builder(
+          }) : ListView.builder(
           itemCount: searchedItems.length,
           shrinkWrap: true,
-          itemBuilder: (BuildContext ctx, index){
+          itemBuilder: (BuildContext ctx, index) {
             Country project = searchedItems[index];
             snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
             return Padding(
@@ -295,7 +305,8 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>  CountryDetails(ccode: project.code!,)));
+                      MaterialPageRoute(builder: (context) =>
+                          CountryDetails(ccode: project.code!,)));
                 },
                 child: Container(
                   height: 60,
@@ -304,11 +315,14 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.greenAccent,
                       border: Border.all(
                           color: Colors.white54, // Set border color
-                          width: 2.0),   // Set border width
+                          width: 2.0), // Set border width
                       borderRadius: const BorderRadius.all(
                           Radius.circular(8.0)), // Set rounded corner radius
                       boxShadow: const [
-                        BoxShadow(blurRadius: 10,color: Colors.black,offset: Offset(1,3))] // Make rounded corner of border
+                        BoxShadow(blurRadius: 10,
+                            color: Colors.black,
+                            offset: Offset(1, 3))
+                      ] // Make rounded corner of border
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -322,7 +336,9 @@ class _HomePageState extends State<HomePage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(project.name.toString(),style: const TextStyle(fontSize: 10,fontWeight: FontWeight.bold),),
+                            Text(project.name.toString(),
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ],
@@ -333,9 +349,11 @@ class _HomePageState extends State<HomePage> {
             );
           });
     }
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    else {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
   }
 }
 

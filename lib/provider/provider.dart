@@ -8,6 +8,7 @@ class CountryProvider extends ChangeNotifier{
   List searchedItemsIndexPosition = [];
 
 
+
    void addCountries(AsyncSnapshot<List<Country>> snapshot){
      allCountryList = snapshot.data!;
      notifyListeners();
@@ -24,5 +25,6 @@ class CountryProvider extends ChangeNotifier{
     searchedItemsIndexPosition = value;
     notifyListeners();
   }
+
 
 }
