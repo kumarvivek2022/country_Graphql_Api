@@ -18,18 +18,21 @@ class _HomePageState extends State<HomePage> {
   String? selectedLanguage;
   dynamic countries;
   dynamic allLanguage;
+
+  ///Function to search country
+
   Future<void> searchResults(String query, List savedCountry,
       List searchedItemsIndexPosition, List searchedItems) async {
-    searchedItems.clear(); //to clear searched list items index
-    searchedItemsIndexPosition.clear();
-    List dummyList = [];  // initialise a dummy list
-    dummyList.addAll(savedCountry); // to store all countries data on dummy list
+      searchedItems.clear(); //to clear searched list items index
+      searchedItemsIndexPosition.clear();
+      List dummyList = [];  // initialise a dummy list
+      dummyList.addAll(savedCountry); // to store all countries data on dummy list
     if (query.isNotEmpty) {
       List dummyListData = []; // to store list searched data for runtime if query is not empty
       for (var searchedCountry in dummyList) {
         if (searchedCountry.code.toString().toLowerCase() ==
             query.toLowerCase()) {
-          dummyListData.add(searchedCountry); // to store searched data on the dummy list data
+            dummyListData.add(searchedCountry); // to store searched data on the dummy list data
         }
       }
       Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
@@ -59,6 +62,9 @@ class _HomePageState extends State<HomePage> {
       Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
     }
   }
+
+  ///Function to filter country with languages
+
   Future<void> filterItem(String query, List searchedItemsIndexPosition,
       dynamic savedCountry,List searchedItems) async {
     searchedItems.clear();
@@ -75,10 +81,7 @@ class _HomePageState extends State<HomePage> {
         for(var i=0; i<item.languages.length; i++) {
           Languages lang = item.languages![i];
           if(lang.name.toString().toLowerCase()==query.toLowerCase()) {
-
-            // setState(() {
-              dummyListData.add(item);
-            // });
+            dummyListData.add(item);
           }
         }
       }
@@ -95,41 +98,22 @@ class _HomePageState extends State<HomePage> {
          // searchedItemsIndexPosition.add(index);
           Provider.of<CountryProvider>(context, listen: false).getIndexPosition([index]);
         }
-
-      // searchedItems.clear();
       for(var i=0; i<searchedItemsIndexPosition.length; i++){
         Provider.of<CountryProvider>(context, listen: false).getSelectedItems;
         searchedItems.add(countries[int.parse(searchedItemsIndexPosition[i].toString())]);
       }
       return;
     } else {
-      // setState(() {
-      //   searchedItems.clear();
-      // });
       Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
     }
   }
 
+  ///Function of modalBottomSheet
 
   void _modalBottomSheet(AsyncSnapshot<List<Languages>> snapshot,
       dynamic savedCountries, String? selectedLanguage, List searchedItemsIndexPosition, List searchedItems)
     {
-      const TextField(
-        decoration: InputDecoration(
-          fillColor: Colors.grey,
-          filled: true,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.transparent, width: 0.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.transparent, width: 0.0),
-          ),
-          border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.transparent)
-          ),
-          hintText: 'Enter country name',
-        ),
-      );
+
     var languageList = snapshot.data;
     if (snapshot.connectionState == ConnectionState.done) {
       showModalBottomSheet(context: context, builder: (BuildContext context) {
@@ -139,7 +123,6 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (BuildContext context, int index) {
               Languages lang = languageList[index];
               languageList.sort((a, b) => a.name!.compareTo(b.name!));
-
               return Padding(
                 padding: const EdgeInsets.all(10),
                 child: TextButton(
@@ -183,7 +166,6 @@ class _HomePageState extends State<HomePage> {
                               : Colors.red),),
                     ),
                   ),
-
                 ),
               );
             });
@@ -300,8 +282,19 @@ class _HomePageState extends State<HomePage> {
 
                           child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Center(child: Text("Selected Language is - ${selectedLanguage.toString()}", style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15, color: Colors.white),)),
-                      )),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text("Selected Language is - ${selectedLanguage.toString()}", style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15, color: Colors.white),),
+                            IconButton(
+                                onPressed: () {
+                                  Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(null);
+                                  searchedItems.clear();
+                                },
+                                icon: const Icon(Icons.cancel)),
+                          ],
+                        ),
+                          )),
                   ),
                 )
           ],
@@ -367,15 +360,12 @@ class _HomePageState extends State<HomePage> {
                                   const SizedBox(width: 50,),
                                   Text(project.capital.toString(),
                                     style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal,fontStyle: FontStyle.italic),),
-
-
                                 ],
                               ),
                             ),
                           ),
                           Text(project.code.toString(),
                             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold,fontStyle: FontStyle.italic),),
-
                         ],
                       ),
                     ),
@@ -432,10 +422,8 @@ class _HomePageState extends State<HomePage> {
                               Text(project.name.toString(),
                                 style: const TextStyle(
                                     fontSize: 10, fontWeight: FontWeight.bold),),
-                              // Text(project.code.toString(),style: const TextStyle(fontStyle: FontStyle.italic),),
                             ],
                           ),
-
                         ],
                       ),
                     ),

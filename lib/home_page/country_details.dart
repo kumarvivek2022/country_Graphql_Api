@@ -27,7 +27,8 @@ class _CountryDetailsState extends State<CountryDetails> {
   Country country = snapshot.data;
 
   return Card(
-    elevation:10,
+    elevation:50,
+    shadowColor: Colors.black,
     margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 16.0),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10.0),
@@ -41,18 +42,18 @@ class _CountryDetailsState extends State<CountryDetails> {
         const SizedBox(height: 20,),
         Text("NAME : "+country.name!.toUpperCase(), textAlign:TextAlign.center,style: const TextStyle(
           fontSize: 30, fontWeight: FontWeight.w500, letterSpacing: 1,height: 1.5,
-          color: Colors.indigo
+          color: Colors.black
         ),),
         const SizedBox(height: 10,),
-        Text("NATIVE : "+country.native.toString(),style: const TextStyle(fontWeight: FontWeight.w600,color: Colors.indigo,fontSize: 30),),
+        Text("NATIVE : "+country.native.toString(),style: const TextStyle(fontWeight: FontWeight.w600,color: Colors.black,fontSize: 30),),
         const SizedBox(height: 10,),
-        Text("CURRENCY : "+country.currency.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo ),),
+        Text("CURRENCY : "+country.currency.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.black ),),
         const SizedBox(height: 10,),
-        Text("CAPITAL : "+country.capital.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
+        Text("CAPITAL : "+country.capital.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.black),),
         const SizedBox(height: 10,),
-        Text("CODE : "+country.code.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
+        Text("CODE : "+country.code.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.black),),
         const SizedBox(height: 10,),
-        Text("PHONE : "+country.phone.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.indigo),),
+        Text("PHONE : "+country.phone.toString(),style: const TextStyle(fontSize: 30,fontWeight: FontWeight.w600,color: Colors.black),),
         SizedBox(
           width: MediaQuery.of(context).size.width,
           height: 80,
