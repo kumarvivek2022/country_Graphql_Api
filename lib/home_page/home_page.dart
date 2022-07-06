@@ -59,14 +59,8 @@ class _HomePageState extends State<HomePage> {
       Provider.of<CountryProvider>(context, listen: false).getSelectedItems([]);
     }
   }
-
-
   Future<void> filterItem(String query, List searchedItemsIndexPosition,
       dynamic savedCountry,List searchedItems) async {
-    print("Q: "+query.toString());
-    print("searchedItemsIndexPosition: "+searchedItemsIndexPosition.toString());
-    print("savedcountry: "+savedCountry.toString());
-
     searchedItems.clear();
     searchedItemsIndexPosition.clear();
     List dummySearchList = [];
@@ -81,6 +75,7 @@ class _HomePageState extends State<HomePage> {
         for(var i=0; i<item.languages.length; i++) {
           Languages lang = item.languages![i];
           if(lang.name.toString().toLowerCase()==query.toLowerCase()) {
+
             // setState(() {
               dummyListData.add(item);
             // });
@@ -115,45 +110,85 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
   void _modalBottomSheet(AsyncSnapshot<List<Languages>> snapshot,
-      dynamic savedCountries, String? selectedLanguage, List searchedItemsIndexPosition, List searchedItems) {
+      dynamic savedCountries, String? selectedLanguage, List searchedItemsIndexPosition, List searchedItems)
+    {
+      const TextField(
+        decoration: InputDecoration(
+          fillColor: Colors.grey,
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.transparent, width: 0.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.transparent, width: 0.0),
+          ),
+          border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.transparent)
+          ),
+          hintText: 'Enter country name',
+        ),
+      );
     var languageList = snapshot.data;
     if (snapshot.connectionState == ConnectionState.done) {
       showModalBottomSheet(context: context, builder: (BuildContext context) {
-        return GridView.count(
-            crossAxisCount: 3,
-            crossAxisSpacing: 1,
-            mainAxisSpacing: 1,
-            shrinkWrap: true,
-            children: List.generate(
-                languageList!.length,
-                    (index) {
-                  Languages lang = languageList[index];
-                  languageList.sort((a, b) => a.name!.compareTo(b.name!));
-                  return Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: TextButton(
-                      onPressed: () {
-                        if(selectedLanguage.toString()!=lang.name.toString()) {
-                           filterItem(lang.name.toString(),searchedItemsIndexPosition,savedCountries,searchedItems );
-                          Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(lang.name.toString());
-                        }else{
-                          Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(null);
-                          // setState(() {
-                          //   searchedItemsIndexPosition.clear();
-                          //   searchedItems.clear();
-                          // });
-                        }
-                        Navigator.pop(context);
-                      },
-                      child: Text(lang.name.toString(), style: TextStyle(color: selectedLanguage.toString()!=lang.name.toString()?Colors.blue:Colors.red),),
-                    ),
-                  );
-                }
+        return ListView.builder(
+          scrollDirection: Axis.vertical,
+            itemCount: languageList!.length,
+            itemBuilder: (BuildContext context, int index) {
+              Languages lang = languageList[index];
+              languageList.sort((a, b) => a.name!.compareTo(b.name!));
 
-            )
-        );
-      });
+              return Padding(
+                padding: const EdgeInsets.all(10),
+                child: TextButton(
+                  onPressed: () {
+                    if (selectedLanguage.toString() != lang.name.toString()) {
+                      filterItem(
+                          lang.name.toString(), searchedItemsIndexPosition,
+                          savedCountries, searchedItems);
+                      Provider.of<CountryProvider>(context, listen: false)
+                          .addSelectedLanguage(lang.name.toString());
+                    } else {
+                      Provider.of<CountryProvider>(context, listen: false)
+                          .addSelectedLanguage(null);
+                      searchedItems.clear();
+
+                    }
+                    Navigator.pop(context);
+                  },
+
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.greenAccent,
+                        border: Border.all(
+                            color: Colors.white54, // Set border color
+                            width: 0), // Set border width
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(8.0)), // Set rounded corner radius
+                        boxShadow: const [
+                          BoxShadow(blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(1, 3))
+                        ] // Make rounded corner of border
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(lang.name.toString(), style: TextStyle(
+                          color: selectedLanguage.toString() != lang.name.toString()
+                              ? Colors.black
+                              : Colors.red),),
+                    ),
+                  ),
+
+                ),
+              );
+            });
+      }
+      );
     }
     else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -164,71 +199,111 @@ class _HomePageState extends State<HomePage> {
   Future<List<Country>> future = getAllCountries();
   @override
   Widget build(BuildContext context) {
-    final storedCountry = Provider.of<CountryProvider>(context).allCountryList;
+    dynamic storedCountry = Provider.of<CountryProvider>(context).allCountryList;
     final selectedLanguage= Provider.of<CountryProvider>(context).selectedLanguage;
     final searchedItems= Provider.of<CountryProvider>(context).searchedItems;
     final searchedItemsIndexPosition= Provider.of<CountryProvider>(context).searchedItemsIndexPosition;
     debugPrint(storedCountry.toString());
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.pink,
-        title: const Text("Country Directory"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          centerTitle: true,
+          backgroundColor: Colors.indigo,
+          title: const Text("Country Directory"),
+          actions: [
+            FutureBuilder<List<Languages>>(
+              future: futureLang,
+              builder: (context, snapshot) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Stack(
+                    children: [
+                      IconButton(
+                          onPressed: (){
+                            storedCountry = Provider.of<CountryProvider>(context, listen: false).allCountryList;
+                            if(storedCountry.isNotEmpty){
+                              _modalBottomSheet(snapshot, storedCountry, selectedLanguage,searchedItemsIndexPosition,searchedItems);
+                            }else{
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data not loaded kindly reload")));
+                            }
+                          },
+                          icon: const Icon(Icons.sort)),
+                      if(selectedLanguage!=null)
+                        const Positioned( //<-- SEE HERE
+                          right: 0,
+                          top: 0,
+                          child: Text('1', style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20, color: Colors.white),),
+                        )
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        body: Stack(
           children: [
-             Row(
-               children: [
-                 Expanded(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Padding(
+                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                    child: TextField(
-                     decoration: const InputDecoration(
-                       border: OutlineInputBorder(),
+                     decoration: InputDecoration(
+                       fillColor: Colors.grey.withOpacity(0.2),
+                       filled: true,
+                       enabledBorder: const OutlineInputBorder(
+                         borderSide: BorderSide(color: Colors.transparent, width: 0.0),
+                       ),
+                       focusedBorder: const OutlineInputBorder(
+                         borderSide: BorderSide(color: Colors.transparent, width: 0.0),
+                       ),
+                       border: const OutlineInputBorder(
+                           borderSide: BorderSide(color: Colors.transparent)
+                       ),
                        hintText: 'Enter country name',
                      ),
                      onChanged: (value) {
+                       Provider.of<CountryProvider>(context, listen: false).addSelectedLanguage(null);
                        searchResults(value, storedCountry, searchedItemsIndexPosition,
                            searchedItems); },
                    ),
                  ),
-                 FutureBuilder<List<Languages>>(
-                   future: futureLang,
-                   builder: (context, snapshot) {
-                     return Stack(
-                       children: [
-                         IconButton(
-                             onPressed: (){
-                               _modalBottomSheet(snapshot, storedCountry, selectedLanguage,searchedItemsIndexPosition,searchedItems);
-                             },
-                             icon: const Icon(Icons.sort)),
-                         if(selectedLanguage!=null)
-                         const Positioned( //<-- SEE HERE
-                           right: 0,
-                           top: 0,
-                           child: Text('1', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.red),),
-                         )
-                       ],
-                     );
-                   },
-                 ),
-               ],
-             ),
-            if(selectedLanguage!=null)
-             const SizedBox(height: 10,),
-             if(selectedLanguage!=null)
-               Text("Selected Language - "+selectedLanguage.toString()),
-            const SizedBox(height: 50),
-            Expanded(
-              child: FutureBuilder<List<Country>>(
-                future: future,
-                builder: (context, snapshot) {
-                  return pickCountriesWidget(context, snapshot, searchedItems);
-                },
-              ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: FutureBuilder<List<Country>>(
+                    future: future,
+                    builder: (context, snapshot) {
+                      return pickCountriesWidget(context, snapshot, searchedItems);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
-            const SizedBox(height: 20),
+            if(selectedLanguage!=null)
+                Positioned( //<-- SEE HERE
+                  bottom: 10,
+                  right: 10,
+                  left: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: 50,
+                          decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.all(Radius.circular(10))
+                          ),
+                          width: MediaQuery.of(context).size.width,
+
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(child: Text("Selected Language is - ${selectedLanguage.toString()}", style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15, color: Colors.white),)),
+                      )),
+                  ),
+                )
           ],
         ),
       ),
@@ -238,116 +313,137 @@ class _HomePageState extends State<HomePage> {
       AsyncSnapshot<List<Country>> snapshot, List searchedItems) {
     if (snapshot.connectionState == ConnectionState.done) {
       Provider.of<CountryProvider>(context, listen: false).addCountries(snapshot);
-      return searchedItems.isEmpty ? ListView.builder(
-          itemCount: snapshot.data!.length,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext ctx, index) {
-            Country project = snapshot.data![index];
-            snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          CountryDetails(ccode: project.code!,)));
-                },
-                child: Container(
-                  height: 60,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.greenAccent,
-                      border: Border.all(
-                          color: Colors.white54, // Set border color
-                          width: 2.0), // Set border width
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(8.0)), // Set rounded corner radius
-                      boxShadow: const [
-                        BoxShadow(blurRadius: 10,
-                            color: Colors.black,
-                            offset: Offset(1, 3))
-                      ] // Make rounded corner of border
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: const Color(0xFFFFFFFF),
-                          child: Text(project.code.toString()),
-                        ),
-                        const SizedBox(width: 50,),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(project.name.toString(),
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),),
-                            // Text(project.code.toString(),style: const TextStyle(fontStyle: FontStyle.italic),),
-                          ],
-                        ),
-                      ],
+      return searchedItems.isEmpty ?  MediaQuery.removePadding(
+        removeBottom: true,
+        context: context,
+        removeTop: true,
+        child: ListView.builder(
+            itemCount: snapshot.data!.length,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext ctx, index) {
+              Country project = snapshot.data![index];
+              snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>
+                            CountryDetails(ccode: project.code!,)));
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                            color: Colors.white54, // Set border color
+                            width: 0), // Set border width
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(8.0)), // Set rounded corner radius
+                        boxShadow: const [
+                          BoxShadow(blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(1, 3))
+                        ] // Make rounded corner of border
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFFFFFFFF),
+                            child: Text(project.emoji.toString()),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(project.name.toString(),
+                                    style: const TextStyle(
+                                        fontSize: 10, fontWeight: FontWeight.bold),),
+                                  const SizedBox(width: 50,),
+                                  Text(project.capital.toString(),
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal,fontStyle: FontStyle.italic),),
+
+
+                                ],
+                              ),
+                            ),
+                          ),
+                          Text(project.code.toString(),
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold,fontStyle: FontStyle.italic),),
+
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }) : ListView.builder(
-          itemCount: searchedItems.length,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext ctx, index) {
-            Country project = searchedItems[index];
-            snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          CountryDetails(ccode: project.code!,)));
-                },
-                child: Container(
-                  height: 60,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.greenAccent,
-                      border: Border.all(
-                          color: Colors.white54, // Set border color
-                          width: 2.0), // Set border width
-                      borderRadius: const BorderRadius.all(
-                          Radius.circular(8.0)), // Set rounded corner radius
-                      boxShadow: const [
-                        BoxShadow(blurRadius: 10,
-                            color: Colors.black,
-                            offset: Offset(1, 3))
-                      ] // Make rounded corner of border
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: const Color(0xFFFFFFFF),
-                          child: Text(project.code.toString()),
-                        ),
-                        const SizedBox(width: 50,),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(project.name.toString(),
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),),
-                          ],
-                        ),
-                      ],
+              );
+            }),
+      ) :  MediaQuery.removePadding(
+        removeBottom: true,
+        removeTop: true,
+        context: context,
+        child: ListView.builder(
+            itemCount: searchedItems.length,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext ctx, index) {
+              Country project = searchedItems[index];
+              snapshot.data!.sort((a, b) => a.name!.compareTo(b.name!));
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>
+                            CountryDetails(ccode: project.code!,)));
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                            color: Colors.white54, // Set border color
+                            width: 0), // Set border width
+                        borderRadius: const BorderRadius.all(
+                            Radius.circular(8.0)), // Set rounded corner radius
+                        boxShadow: const [
+                          BoxShadow(blurRadius: 0,
+                              color: Colors.white,
+                              offset: Offset(1, 3))
+                        ] // Make rounded corner of border
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFFFFFFFF),
+                            child: Text(project.emoji.toString()),
+                          ),
+                          const SizedBox(width: 50,),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(project.name.toString(),
+                                style: const TextStyle(
+                                    fontSize: 10, fontWeight: FontWeight.bold),),
+                              // Text(project.code.toString(),style: const TextStyle(fontStyle: FontStyle.italic),),
+                            ],
+                          ),
+
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          });
+              );
+            }),
+      );
     }
     else {
       return const Center(

@@ -36,6 +36,9 @@ query {
   countries{
     code,
     name,
+    emoji,
+    currency,
+    capital,
     languages {
       code,
       name

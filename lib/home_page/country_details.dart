@@ -87,7 +87,7 @@ class _CountryDetailsState extends State<CountryDetails> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.pink,
+        backgroundColor: Colors.indigo,
         title: const Text("Country Details"),
       ),
       body: Padding(
